@@ -1,0 +1,1 @@
+See comments at top of PHPGatewayInterface for details. This was written initially to proxy CVSWeb so it would be possible to put the output into a HTML DIV on a portal site. Depending on the output method used, it can also filter the CGI script output to allow things like alternate row highlighting (so line wrapping can be used without casuing confusion).
