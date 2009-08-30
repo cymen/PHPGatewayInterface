@@ -3,16 +3,16 @@
  * PHPGatewayInterface
  *
  * This class provides a PHP frontend to CGI or Common Gateway Interface
- * scripts. It depends on a backend wrapper script to pass the environmental
- * variables to be present when the CGI script is run. It was written for
- * CVSWeb and tested with CVSWeb so the environemental variables sent to the
- * CGI environment (see makeEnvExports) may need adjustment for other CGIs.
- * The wrapper script included, named wrapper.pl, is assumed to be installed
- * in the same directory as the CGI script that is to be run.
+ * scripts. It was written for CVSWeb and tested with CVSWeb so the
+ * environemental variables sent to the CGI environment (see setEnv) may need
+ * adjustment for other CGIs.
  *
  * Known bugs:
  *  - Annotated view of binary files ends at binary content. Appears to be an
  *      issue with the DOMDocument component of PHP.
+ *
+ * Known potential issues:
+ *  - PHP safe mode can't be used as putenv() conflicts with it.
  *
  * Copyright 2009 Cymen Vig
  *
@@ -444,8 +444,6 @@ class PHPGatewayInterface
      * those set by PHP $_SERVER (preference to caller).
      *
      * @throws exception if suspect environmental value is supplied.
-     * @return string of environmental variables in format to be passed
-     *  to wrapper script.
      */
     private function setEnv()
     {
@@ -547,7 +545,7 @@ class PHPGatewayInterface
 
 
     /**
-     * Glue functio ntha tsipmly checks if a string ends with a certain
+     * Glue function that checks if a string ends with a certain
      * string.
      *
      * @param string the needle being looked for.
