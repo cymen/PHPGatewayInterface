@@ -239,7 +239,7 @@ class PHPGatewayInterface
                             $div = $doc->createElement('div');
                             $p->parentNode->replaceChild($div, $p);
                             $d = new DOMDocument();
-                            @$d->loadHTML($this->textToTable($p->nodeValue));
+                            @$d->loadHTML($this->linesToDivs($p->nodeValue));
                             foreach ($d->childNodes as $dc)
                             {
                                 if (get_class($dc) != 'DOMDocumentType')
@@ -265,7 +265,7 @@ class PHPGatewayInterface
             }
             else
             {
-                $body = $this->textToTable($this->result['body']);
+                $body = $this->linesToDivs($this->result['body']);
             }
 
             return '<div id="cgi_wrapper">'. $body .'</div>';
@@ -276,34 +276,39 @@ class PHPGatewayInterface
         }
     }
 
-    private function textToTable($pre = null)
+    /*
+     * Convert text file rows to spans in order to allow altenrate row
+     * highlighting.
+     *
+     * @param string text to convert
+     * @return string text as spans
+     */
+    private function linesToDivs($pre = null)
     {
         $rows = explode("\n", $pre);
         $count = 0;
         $class = array
         (
-            0   => 'cgi_even',
-            1   => 'cgi_odd',
+            0   => 'even',
+            1   => 'odd',
         );
 
         foreach ($rows as $row)
         {
-            if (! strlen(trim($row))) continue;
-        
-            $output[] = '<tr><td class="'. $class[$count % 2] .'">'. $row .'</td></tr>';
+            $row = strlen(trim($row)) == 0 ? '&nbsp;' : $row;
+            $output[] = '<div class="'. $class[$count % 2] .'">'. $row .'</div>';
             $count++;
         }
-        
+
         if ($count == 1)
         {
-            return $pre;
+            return '<div id="div_pre">'. $pre .'</div>';
         }
         else
         {
-            return'<table id="cgi_table">'. implode("\n", $output) .'</table>';
+            return '<div id="div_pre">'. implode("\n", $output) .'</div>';
         }
     }
-
 
     /**
      * Make a proxied URL.

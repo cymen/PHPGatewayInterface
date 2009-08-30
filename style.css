@@ -1,6 +1,6 @@
 #cgi_wrapper {
     border: 2px solid black;
-    width: 70%;
+    width: 80%;
     position: right;
     margin-left: auto;
     margin-right: auto;
@@ -14,7 +14,7 @@
 }
 
 body {
-    background: lightblue;
+    background: #333;
 }
 
 pre {
@@ -27,10 +27,14 @@ pre {
  word-wrap: break-word; /* Internet Explorer 5.5+ */
 }
 
-.cgi_odd {
+#cgi_wrapper #div_pre {
+    font-family: Consolas, "Courier New", monospace;
+}
+
+#cgi_wrapper .odd {
     background-color: #FFFFFF;
 }
 
-.cgi_even {
+#cgi_wrapper .even {
     background-color: #F5F5F5;
 }
