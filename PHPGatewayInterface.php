@@ -294,8 +294,8 @@ class PHPGatewayInterface
     }
 
     /*
-     * Convert text file rows to spans in order to allow altenrate row
-     * highlighting.
+     * Convert text file rows to unordered list to allow alternate row
+     * highlighting, CSS indent line wrap trick, etc.
      *
      * @param string text to convert
      * @return string text as spans
@@ -323,7 +323,7 @@ class PHPGatewayInterface
         }
         else
         {
-            return '<div id="div_pre">'. implode("\n", $output) .'</div>';
+            return '<div id="div_pre"><ul>'. implode("\n", $output) .'</ul></div>';
         }
     }
 
