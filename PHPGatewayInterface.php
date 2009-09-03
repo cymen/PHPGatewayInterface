@@ -130,6 +130,11 @@ class PHPGatewayInterface
 
         // parse body
         $body = implode("\n", $data);
+        if (isset($this->options['FILTER']))
+        {
+            $filter = unserialize($this->options['FILTER']);
+            $body = preg_replace($filter['pattern'], $filter['replacement'], $body);
+        }
         unset($data);
 
         if ($this->result['content-type'] == 'text/html')
@@ -159,6 +164,20 @@ class PHPGatewayInterface
                 $input->setAttribute('value', $this->options['PATH_INFO']);
                 $input->setAttribute('type', 'hidden');
                 $f->appendChild($doc->importNode($input, true));
+                if (isset($this->options['GET']))
+                {
+                    // add GET options to any form so they persist
+                    $key_values = explode('&', $this->options['GET']);
+                    foreach ($key_values as $kv)
+                    {
+                        list ($key, $value) = split('=', $kv);
+                        $input = $doc->createElement('input');
+                        $input->setAttribute('type', 'hidden');
+                        $input->setAttribute('name', $key);
+                        $input->setAttribute('value', $value);
+                        $f->appendChild($doc->importNode($input, true));
+                    }
+                }
             }
            
             // rewrite IMG src (but only those with relative path)
@@ -239,7 +258,7 @@ class PHPGatewayInterface
                             $div = $doc->createElement('div');
                             $p->parentNode->replaceChild($div, $p);
                             $d = new DOMDocument();
-                            @$d->loadHTML($this->linesToDivs($p->nodeValue));
+                            @$d->loadHTML($this->linesToList($p->nodeValue));
                             foreach ($d->childNodes as $dc)
                             {
                                 if (get_class($dc) != 'DOMDocumentType')
@@ -253,9 +272,7 @@ class PHPGatewayInterface
                 }
             }
 
-            return '<div id="cgi_wrapper">'
-                . $doc->saveHTML()
-                . '</div>';
+            return '<div id="cgi_wrapper">'. $doc->saveHTML() .'</div>';
         }
         else if ($this->result['content-type'] == 'text/plain')
         {
@@ -265,7 +282,7 @@ class PHPGatewayInterface
             }
             else
             {
-                $body = $this->linesToDivs($this->result['body']);
+                $body = $this->linesToList($this->result['body']);
             }
 
             return '<div id="cgi_wrapper">'. $body .'</div>';
@@ -283,7 +300,7 @@ class PHPGatewayInterface
      * @param string text to convert
      * @return string text as spans
      */
-    private function linesToDivs($pre = null)
+    private function linesToList($pre = null)
     {
         $rows = explode("\n", $pre);
         $count = 0;
@@ -296,7 +313,7 @@ class PHPGatewayInterface
         foreach ($rows as $row)
         {
             $row = strlen(trim($row)) == 0 ? '&nbsp;' : $row;
-            $output[] = '<div class="'. $class[$count % 2] .'">'. $row .'</div>';
+            $output[] = '<li class="'. $class[$count % 2] .'">'. $row .'</li>';
             $count++;
         }
 
@@ -319,12 +336,26 @@ class PHPGatewayInterface
     {
         if (empty($path))
         {
-            return $this->options['PHP_SCRIPT'];
+            if (isset($this->options['GET']))
+            {
+                return $this->options['PHP_SCRIPT'] .'?'. $this->options['GET'];
+            }
+            else
+            {
+                return $this->options['PHP_SCRIPT'];
+            }
         }
         else
         {
             $path = $this->makePath($path);
-            return $this->options['PHP_SCRIPT'] .'?href='. urlencode($path);
+            if (isset($this->options['GET']))
+            {
+                return $this->options['PHP_SCRIPT'] .'?'. $this->options['GET'] .'&href='. urlencode($path);
+            }
+            else
+            {
+                return $this->options['PHP_SCRIPT'] .'?href='. urlencode($path);
+            }
         }
     }
 
